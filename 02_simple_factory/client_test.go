@@ -82,40 +82,38 @@ func TestOrderCoffee(t *testing.T) {
 
 // TestCoffeeType 测试返回的咖啡对象类型
 func TestCoffeeType(t *testing.T) {
-	tests := []struct {
-		name         string
-		coffeeType   string
-		expectedType interface{}
-	}{
-		{name: "TestLatteType", coffeeType: "latte", expectedType: &latte{}},
-		{name: "TestMochaType", coffeeType: "mocha", expectedType: &mocha{}},
-		{name: "TestAmericanoType", coffeeType: "americano", expectedType: &americano{}},
-	}
+	coffeeStore := NewCoffeeStore(&SimpleFactory{})
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			coffeeStore := NewCoffeeStore(&SimpleFactory{})
-			coffee, err := coffeeStore.OrderCoffee(tt.coffeeType)
-			if err != nil {
-				t.Fatalf("未期望错误，但得到了错误: %v", err)
-			}
-			if coffee == nil {
-				t.Fatalf("期望得到咖啡，但得到 nil")
-			}
-			switch tt.expectedType.(type) {
-			case *latte:
-				if _, ok := coffee.(*latte); !ok {
-					t.Errorf("期望返回 *latte 类型，但得到的是 %T", coffee)
-				}
-			case *mocha:
-				if _, ok := coffee.(*mocha); !ok {
-					t.Errorf("期望返回 *mocha 类型，但得到的是 %T", coffee)
-				}
-			case *americano:
-				if _, ok := coffee.(*americano); !ok {
-					t.Errorf("期望返回 *americano 类型，但得到的是 %T", coffee)
-				}
-			}
-		})
-	}
+	// 测试拿铁咖啡类型
+	t.Run("TestLatteType", func(t *testing.T) {
+		coffee, err := coffeeStore.OrderCoffee("latte")
+		if err != nil {
+			t.Fatalf("未期望错误，但得到了错误: %v", err)
+		}
+		if _, ok := coffee.(*latte); !ok {
+			t.Errorf("期望返回 *latte 类型，但得到的是 %T", coffee)
+		}
+	})
+
+	// 测试摩卡咖啡类型
+	t.Run("TestMochaType", func(t *testing.T) {
+		coffee, err := coffeeStore.OrderCoffee("mocha")
+		if err != nil {
+			t.Fatalf("未期望错误，但得到了错误: %v", err)
+		}
+		if _, ok := coffee.(*mocha); !ok {
+			t.Errorf("期望返回 *mocha 类型，但得到的是 %T", coffee)
+		}
+	})
+
+	// 测试美式咖啡类型
+	t.Run("TestAmericanoType", func(t *testing.T) {
+		coffee, err := coffeeStore.OrderCoffee("americano")
+		if err != nil {
+			t.Fatalf("未期望错误，但得到了错误: %v", err)
+		}
+		if _, ok := coffee.(*americano); !ok {
+			t.Errorf("期望返回 *americano 类型，但得到的是 %T", coffee)
+		}
+	})
 }
