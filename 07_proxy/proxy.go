@@ -1,27 +1,25 @@
 package proxy
 
-// 代理模式
+import "fmt"
 
-// 代理
+// 代理模式 - 代理
 
-// ImageProxy 图像代理，控制对真实图像的访问。
-type ImageProxy struct {
-	filename  string
-	realImage *RealImage
+// Proxy 代理类，实现经销商的销售逻辑
+type Proxy struct {
+	seller *Seller
 }
 
-// NewImageProxy 创建一个新的图像代理。
-func NewImageProxy(filename string) *ImageProxy {
-	return &ImageProxy{
-		filename:  filename,
-		realImage: nil, // 延迟初始化
+// NewProxy 创建新的代理实例
+func NewProxy() *Proxy {
+	return &Proxy{
+		seller: &Seller{},
 	}
 }
 
-// Display 显示图像，通过代理控制加载。
-func (p *ImageProxy) Display() string {
-	if p.realImage == nil {
-		p.realImage = NewRealImage(p.filename) // 延迟加载
-	}
-	return p.realImage.Display()
+// SaleComputer 代理销售电脑，增加20%利润
+func (p *Proxy) SaleComputer(money float64) {
+	profit := money * 0.2
+	total := money + profit
+	fmt.Printf("经销商代理销售电脑，原始价格: %.2f，增加20%%利润: %.2f，总价: %.2f\n", money, profit, total)
+	p.seller.SaleComputer(money)
 }

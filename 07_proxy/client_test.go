@@ -1,114 +1,76 @@
 package proxy
 
 import (
+	"bytes"
 	"io"
 	"os"
-	"strings"
 	"testing"
 )
 
 // 单元测试
 // 模拟客户端调用
 
-// TestImageProxy 测试图像代理的延迟加载和显示功能。
-func TestImageProxy(t *testing.T) {
-	// 定义测试用例，包含图像文件名和期望的显示结果。
+// TestProxySaleComputer 测试代理模式的SaleComputer方法
+func TestProxySaleComputer(t *testing.T) {
+	// 定义测试用例结构，包含测试名称、输入价格和预期输出
 	tests := []struct {
-		name            string
-		filename        string
-		expectedDisplay string
+		name     string
+		money    float64
+		expected string
 	}{
 		{
-			name:            "TestImage1",
-			filename:        "image1.jpg",
-			expectedDisplay: "显示图像: image1.jpg",
+			name:     "Test with price 10000", // 测试用例1：输入价格10000
+			money:    10000.0,
+			expected: "经销商代理销售电脑，原始价格: 10000.00，增加20%利润: 2000.00，总价: 12000.00\n销售电脑, 并拿到钱:10000.00",
 		},
 		{
-			name:            "TestImage2",
-			filename:        "image2.png",
-			expectedDisplay: "显示图像: image2.png",
+			name:     "Test with price 5000", // 测试用例2：输入价格5000
+			money:    5000.0,
+			expected: "经销商代理销售电脑，原始价格: 5000.00，增加20%利润: 1000.00，总价: 6000.00\n销售电脑, 并拿到钱:5000.00",
+		},
+		{
+			name:     "Test with price 0", // 测试用例3：输入价格0
+			money:    0.0,
+			expected: "经销商代理销售电脑，原始价格: 0.00，增加20%利润: 0.00，总价: 0.00\n销售电脑, 并拿到钱:0.00",
 		},
 	}
 
-	// 遍历测试用例，验证代理的显示功能。
+	// 创建代理实例
+	proxy := NewProxy()
+
+	// 遍历所有测试用例
 	for _, tt := range tests {
+		// 使用t.Run运行子测试，tt.name为子测试名称
 		t.Run(tt.name, func(t *testing.T) {
-			// 创建代理对象。
-			proxy := NewImageProxy(tt.filename)
+			// 创建管道以捕获标准输出
+			r, w, _ := os.Pipe()
+			// 保存原始标准输出
+			old := os.Stdout
+			// 将标准输出重定向到管道
+			os.Stdout = w
+			// 确保测试结束后恢复标准输出
+			defer func() {
+				os.Stdout = old
+			}()
 
-			// 第一次调用 Display，触发加载。
-			output := proxy.Display()
-			if output != tt.expectedDisplay {
-				t.Errorf("期望显示 '%s'，但得到 '%s'", tt.expectedDisplay, output)
+			// 调用代理的SaleComputer方法
+			proxy.SaleComputer(tt.money)
+
+			// 关闭管道写入端
+			w.Close()
+			// 创建缓冲区以读取管道输出
+			var buf bytes.Buffer
+			// 将管道内容复制到缓冲区
+			io.Copy(&buf, r)
+			// 获取实际输出
+			output := buf.String()
+
+			// 格式化预期输出
+			expected := tt.expected
+			// 比较实际输出与预期输出
+			if output != expected {
+				t.Errorf("SaleComputer(%.2f) output = %q; want %q", tt.money, output, expected)
 			}
-
-			// 第二次调用 Display，验证不重复加载。
-			output = proxy.Display()
-			if output != tt.expectedDisplay {
-				t.Errorf("期望显示 '%s'，但得到 '%s'", tt.expectedDisplay, output)
-			}
-
-			// 日志输出，供调试。
-			t.Logf("成功显示: %s", output)
 		})
-	}
-}
-
-// TestLazyLoading 测试代理的延迟加载功能。
-func TestLazyLoading(t *testing.T) {
-	// 创建代理对象。
-	proxy := NewImageProxy("test.jpg")
-
-	// 检查 realImage 是否未加载。
-	if proxy.realImage != nil {
-		t.Errorf("期望 realImage 未加载，但已加载")
-	}
-
-	// 调用 Display，触发加载。
-	proxy.Display()
-
-	// 检查 realImage 是否已加载。
-	if proxy.realImage == nil {
-		t.Errorf("期望 realImage 已加载，但仍为 nil")
-	}
-	if !proxy.realImage.loaded {
-		t.Errorf("期望 realImage.loaded 为 true，但得到 false")
-	}
-}
-
-// TestMultipleDisplays 测试多次调用 Display 是否只加载一次。
-func TestMultipleDisplays(t *testing.T) {
-	// 创建管道以捕获标准输出。
-	r, w, err := os.Pipe()
-	if err != nil {
-		t.Fatalf("创建管道失败: %v", err)
-	}
-	// 保存原始 Stdout 并重定向。
-	origStdout := os.Stdout
-	os.Stdout = w
-	defer func() {
-		// 恢复原始 Stdout。
-		os.Stdout = origStdout
-		w.Close()
-	}()
-
-	// 创建代理对象。
-	proxy := NewImageProxy("multi.jpg")
-
-	// 多次调用 Display。
-	proxy.Display()
-	proxy.Display()
-
-	// 关闭写入端并读取输出。
-	w.Close()
-	output, err := io.ReadAll(r)
-	if err != nil {
-		t.Fatalf("读取管道输出失败: %v", err)
-	}
-
-	// 检查加载日志只出现一次。
-	loadCount := strings.Count(string(output), "加载图像: multi.jpg")
-	if loadCount != 1 {
-		t.Errorf("期望加载图像 1 次，但得到 %d 次", loadCount)
 	}
 }
