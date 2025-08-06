@@ -7,6 +7,7 @@ import (
 )
 
 // 单元测试
+// 模拟客户端调用
 
 // TestGetInstance 模拟client端调用单例（单个goroutine）
 func TestGetInstance(t *testing.T) {
