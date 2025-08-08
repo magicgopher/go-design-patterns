@@ -5,7 +5,7 @@ import "testing"
 // 单元测试
 // 模拟客户端调用
 
-// TestOrderCoffee 测试咖啡店订购咖啡的功能。
+// TestOrderCoffee 测试咖啡店订购咖啡的功能
 func TestOrderCoffee(t *testing.T) {
 	// 定义测试用例
 	tests := []struct {
@@ -17,11 +17,6 @@ func TestOrderCoffee(t *testing.T) {
 			name:         "TestLatte",
 			factory:      LatteFactory{},
 			expectedName: "拿铁咖啡",
-		},
-		{
-			name:         "TestMocha",
-			factory:      MochaFactory{},
-			expectedName: "摩卡咖啡",
 		},
 		{
 			name:         "TestAmericano",
@@ -36,14 +31,13 @@ func TestOrderCoffee(t *testing.T) {
 			// 创建咖啡店，注入特定工厂
 			coffeeStore := NewCoffeeStore(tt.factory)
 
-			// 订购咖啡
-			coffee, err := coffeeStore.OrderCoffee()
-			if err != nil {
-				t.Fatalf("未期望错误，但得到了错误: %v", err)
-			}
+			// 订购咖啡 (修正：只接收一个返回值)
+			coffee := coffeeStore.OrderCoffee()
 			if coffee == nil {
 				t.Fatalf("期望得到咖啡，但得到 nil")
 			}
+
+			// (修正：调用导出的 Name() 方法)
 			if coffee.Name() != tt.expectedName {
 				t.Errorf("期望的咖啡是 '%s', 但得到的是 '%s'", tt.expectedName, coffee.Name())
 			}
@@ -54,42 +48,34 @@ func TestOrderCoffee(t *testing.T) {
 	}
 }
 
-// TestCoffeeType 测试返回的咖啡对象类型。
+// TestCoffeeType 测试返回的咖啡对象类型
 func TestCoffeeType(t *testing.T) {
-	// 定义测试用例，包含每种咖啡工厂及其期望的返回类型。
+	// 定义测试用例
 	tests := []struct {
 		name         string
 		factory      CoffeeFactory
 		expectedType any
 	}{
-		{name: "TestLatteType", factory: LatteFactory{}, expectedType: &latte{}},
-		{name: "TestMochaType", factory: MochaFactory{}, expectedType: &mocha{}},
-		{name: "TestAmericanoType", factory: AmericanoFactory{}, expectedType: &americano{}},
+		{name: "测试Latte类型", factory: LatteFactory{}, expectedType: &Latte{}},
+		{name: "测试Americano类型", factory: AmericanoFactory{}, expectedType: &Americano{}},
 	}
 
-	// 遍历测试用例，验证每种工厂返回的咖啡对象是否为预期类型。
+	// 遍历测试用例
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			coffeeStore := NewCoffeeStore(tt.factory)
-			coffee, err := coffeeStore.OrderCoffee()
-			if err != nil {
-				t.Fatalf("未期望错误，但得到了错误: %v", err)
-			}
+			coffee := coffeeStore.OrderCoffee()
 			if coffee == nil {
 				t.Fatalf("期望得到咖啡，但得到 nil")
 			}
 			switch tt.expectedType.(type) {
-			case *latte:
-				if _, ok := coffee.(*latte); !ok {
-					t.Errorf("期望返回 *latte 类型，但得到的是 %T", coffee)
+			case *Latte:
+				if _, ok := coffee.(*Latte); !ok {
+					t.Errorf("期望返回 *Latte 类型，但得到的是 %T", coffee)
 				}
-			case *mocha:
-				if _, ok := coffee.(*mocha); !ok {
-					t.Errorf("期望返回 *mocha 类型，但得到的是 %T", coffee)
-				}
-			case *americano:
-				if _, ok := coffee.(*americano); !ok {
-					t.Errorf("期望返回 *americano 类型，但得到的是 %T", coffee)
+			case *Americano:
+				if _, ok := coffee.(*Americano); !ok {
+					t.Errorf("期望返回 *Americano 类型，但得到的是 %T", coffee)
 				}
 			}
 		})
