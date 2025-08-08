@@ -1,58 +1,67 @@
 package simplefactory
 
-// 简单工厂 - 工厂生产的产品
+import "fmt"
+
+// 简单工厂（这是一种创建对象实例的规范，并不是常用23种设计模式）
+
+// 抽象产品
 
 // Coffee 咖啡接口
 type Coffee interface {
-	// Name 获取咖啡的名称
+	// 获取咖啡名称
 	Name() string
+	// 加奶
+	AddMilk()
+	// 加糖
+	AddSugar()
 }
 
-// coffeeBase 存储咖啡的通用字段
-type coffeeBase struct {
-	name string // 咖啡名称
+// 具体产品
+
+// Latte 拿铁咖啡
+type Latte struct {
 }
 
-// latte 拿铁咖啡
-type latte struct {
-	coffeeBase // 匿名字段
+// NewLatte 创建Latte指针
+func NewLatte() *Latte {
+	return &Latte{}
 }
 
-// Name 获取咖啡的名称
-func (l latte) Name() string {
-	return l.name
+// Name 获取咖啡名称
+func (l *Latte) Name() string {
+	return "拿铁咖啡"
 }
 
-// NewLatte 创建一个新的拿铁咖啡
-func NewLatte() Coffee {
-	return &latte{coffeeBase{name: "拿铁咖啡"}}
+// AddMilk 加奶
+func (l *Latte) AddMilk() {
+	fmt.Printf("给%s加奶\n", l.Name())
 }
 
-// mocha 摩卡咖啡
-type mocha struct {
-	coffeeBase // 匿名字段
+// AddSugar 加糖
+func (l *Latte) AddSugar() {
+	fmt.Printf("给%s加糖\n", l.Name())
 }
 
-// Name 获取咖啡的名称
-func (m mocha) Name() string {
-	return m.name
+// Americano 美式咖啡
+type Americano struct {
 }
 
-// NewMocha 创建一个新的摩卡咖啡
-func NewMocha() Coffee {
-	return &mocha{coffeeBase{name: "摩卡咖啡"}}
+// NewAmericano 创建Americano指针
+func NewAmericano() *Americano {
+	return &Americano{}
 }
 
-// americano 美式咖啡
-type americano struct {
-	coffeeBase // 匿名字段
+// Name 获取咖啡名称
+func (a *Americano) Name() string {
+	return "美式咖啡"
 }
 
-// Name 获取咖啡的名称
-func (a americano) Name() string {
-	return a.name
+// AddMilk 加奶
+func (a *Americano) AddMilk() {
+	fmt.Printf("给%s加奶\n", a.Name())
 }
 
-func NewAmericano() Coffee {
-	return &americano{coffeeBase{name: "美式咖啡"}}
+// AddSugar 加糖
+func (a *Americano) AddSugar() {
+	fmt.Printf("给%s加糖\n", a.Name())
 }

@@ -14,32 +14,24 @@ func TestOrderCoffee(t *testing.T) {
 		name         string
 		coffeeType   string
 		expectedName string
-		expectError  bool
-		expectedErr  string
+		expectNil    bool
 	}{
 		{
 			name:         "TestLatte",
 			coffeeType:   "latte",
 			expectedName: "拿铁咖啡",
-			expectError:  false,
-		},
-		{
-			name:         "TestMocha",
-			coffeeType:   "mocha",
-			expectedName: "摩卡咖啡",
-			expectError:  false,
+			expectNil:    false,
 		},
 		{
 			name:         "TestAmericano",
 			coffeeType:   "americano",
 			expectedName: "美式咖啡",
-			expectError:  false,
+			expectNil:    false,
 		},
 		{
-			name:        "TestInvalidCoffeeType",
-			coffeeType:  "espresso",
-			expectError: true,
-			expectedErr: "不支持的咖啡类型: espresso",
+			name:       "TestInvalidCoffeeType",
+			coffeeType: "espresso",
+			expectNil:  true,
 		},
 	}
 
@@ -50,23 +42,17 @@ func TestOrderCoffee(t *testing.T) {
 			coffeeStore := NewCoffeeStore(&SimpleFactory{})
 
 			// 订购咖啡
-			coffee, err := coffeeStore.OrderCoffee(tt.coffeeType)
+			coffee := coffeeStore.OrderCoffee(tt.coffeeType)
 
-			// 检查错误情况
-			if tt.expectError {
-				if err == nil {
-					t.Fatalf("期望返回错误，但得到了咖啡: %v", coffee)
-				}
-				if err.Error() != tt.expectedErr {
-					t.Errorf("期望的错误信息是 '%s', 但得到的是 '%s'", tt.expectedErr, err.Error())
+			// 检查 nil 情况
+			if tt.expectNil {
+				if coffee != nil {
+					t.Fatalf("期望返回 nil，但得到了咖啡: %v", coffee.Name())
 				}
 				return
 			}
 
-			// 检查非错误情况
-			if err != nil {
-				t.Fatalf("未期望错误，但得到了错误: %v", err)
-			}
+			// 检查非 nil 情况
 			if coffee == nil {
 				t.Fatalf("期望得到咖啡，但得到 nil")
 			}
@@ -86,34 +72,23 @@ func TestCoffeeType(t *testing.T) {
 
 	// 测试拿铁咖啡类型
 	t.Run("TestLatteType", func(t *testing.T) {
-		coffee, err := coffeeStore.OrderCoffee("latte")
-		if err != nil {
-			t.Fatalf("未期望错误，但得到了错误: %v", err)
+		coffee := coffeeStore.OrderCoffee("latte")
+		if coffee == nil {
+			t.Fatalf("期望得到咖啡，但得到 nil")
 		}
-		if _, ok := coffee.(*latte); !ok {
-			t.Errorf("期望返回 *latte 类型，但得到的是 %T", coffee)
-		}
-	})
-
-	// 测试摩卡咖啡类型
-	t.Run("TestMochaType", func(t *testing.T) {
-		coffee, err := coffeeStore.OrderCoffee("mocha")
-		if err != nil {
-			t.Fatalf("未期望错误，但得到了错误: %v", err)
-		}
-		if _, ok := coffee.(*mocha); !ok {
-			t.Errorf("期望返回 *mocha 类型，但得到的是 %T", coffee)
+		if _, ok := coffee.(*Latte); !ok {
+			t.Errorf("期望返回 *Latte 类型，但得到的是 %T", coffee)
 		}
 	})
 
 	// 测试美式咖啡类型
 	t.Run("TestAmericanoType", func(t *testing.T) {
-		coffee, err := coffeeStore.OrderCoffee("americano")
-		if err != nil {
-			t.Fatalf("未期望错误，但得到了错误: %v", err)
+		coffee := coffeeStore.OrderCoffee("americano")
+		if coffee == nil {
+			t.Fatalf("期望得到咖啡，但得到 nil")
 		}
-		if _, ok := coffee.(*americano); !ok {
-			t.Errorf("期望返回 *americano 类型，但得到的是 %T", coffee)
+		if _, ok := coffee.(*Americano); !ok {
+			t.Errorf("期望返回 *Americano 类型，但得到的是 %T", coffee)
 		}
 	})
 }
