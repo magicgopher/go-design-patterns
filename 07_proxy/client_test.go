@@ -10,13 +10,13 @@ import (
 // 单元测试
 // 模拟客户端调用
 
-// TestProxySaleComputer 测试代理模式的SaleComputer方法
+// TestProxySaleComputer 测试代理模式的 SaleComputer 方法
 func TestProxySaleComputer(t *testing.T) {
 	// 定义测试用例结构，包含测试名称、输入价格和预期输出
 	tests := []struct {
-		name     string
-		money    float64
-		expected string
+		name     string  // 测试用例名称
+		money    float64 // 输入价格
+		expected string  // 预期输出
 	}{
 		{
 			name:     "Test with price 10000", // 测试用例1：输入价格10000
@@ -40,7 +40,7 @@ func TestProxySaleComputer(t *testing.T) {
 
 	// 遍历所有测试用例
 	for _, tt := range tests {
-		// 使用t.Run运行子测试，tt.name为子测试名称
+		// 使用 t.Run 运行子测试，tt.name 为子测试名称
 		t.Run(tt.name, func(t *testing.T) {
 			// 创建管道以捕获标准输出
 			r, w, _ := os.Pipe()
@@ -53,7 +53,7 @@ func TestProxySaleComputer(t *testing.T) {
 				os.Stdout = old
 			}()
 
-			// 调用代理的SaleComputer方法
+			// 调用代理的 SaleComputer 方法
 			proxy.SaleComputer(tt.money)
 
 			// 关闭管道写入端
