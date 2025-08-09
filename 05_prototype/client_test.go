@@ -5,90 +5,59 @@ import "testing"
 // 单元测试
 // 模拟客户端调用
 
-// TestSheepClone 测试羊的克隆功能。
-func TestSheepClone(t *testing.T) {
-	// 定义测试用例，包含原型羊和期望的属性。
-	tests := []struct {
-		name            string
-		prototype       *Sheep
-		cloneName       string
-		cloneAge        int
-		cloneCategory   string
-		modifyCloneName string
-	}{
-		{
-			name:            "TestMerinoSheep",
-			prototype:       &Sheep{Name: "Dolly", Age: 5, Category: "Merino"},
-			cloneName:       "Dolly",
-			cloneAge:        5,
-			cloneCategory:   "Merino",
-			modifyCloneName: "DollyClone",
-		},
-		{
-			name:            "TestDorsetSheep",
-			prototype:       &Sheep{Name: "Molly", Age: 3, Category: "Dorset"},
-			cloneName:       "Molly",
-			cloneAge:        3,
-			cloneCategory:   "Dorset",
-			modifyCloneName: "MollyClone",
-		},
+// TestCloneSheep 测试羊的克隆功能
+func TestCloneSheep(t *testing.T) {
+	// 创建一个原型羊
+	originalSheep := &Sheep{
+		Name:  "Dolly",
+		Age:   2,
+		Color: "White",
 	}
 
-	// 遍历测试用例，验证克隆羊的属性和独立性。
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			// 创建管理器并添加原型羊。
-			manager := NewSheepManager()
-			manager.AddPrototype(tt.prototype.Name, tt.prototype)
+	// 客户端直接调用 Clone 方法（客户端角色）
+	clonedSheep := originalSheep.Clone()
 
-			// 获取克隆羊。
-			clone, err := manager.GetClone(tt.prototype.Name)
-			if err != nil {
-				t.Fatalf("未期望错误，但得到: %v", err)
-			}
-			if clone == nil {
-				t.Fatalf("期望得到克隆羊，但得到 nil")
-			}
-
-			// 转换为 Sheep 类型并验证属性。
-			clonedSheep, ok := clone.(*Sheep)
-			if !ok {
-				t.Fatalf("期望克隆对象为 *Sheep 类型，但得到 %T", clone)
-			}
-			if clonedSheep.Name != tt.cloneName {
-				t.Errorf("期望克隆羊名称为 %s，但得到 %s", tt.cloneName, clonedSheep.Name)
-			}
-			if clonedSheep.Age != tt.cloneAge {
-				t.Errorf("期望克隆羊年龄为 %d，但得到 %d", tt.cloneAge, clonedSheep.Age)
-			}
-			if clonedSheep.Category != tt.cloneCategory {
-				t.Errorf("期望克隆羊类别为 %s，但得到 %s", tt.cloneCategory, clonedSheep.Category)
-			}
-
-			// 修改克隆羊的名称，验证原型羊未受影响。
-			clonedSheep.SetName(tt.modifyCloneName)
-			if tt.prototype.Name == tt.modifyCloneName {
-				t.Errorf("修改克隆羊名称后，原型羊名称不应改变，但得到 %s", tt.prototype.Name)
-			}
-
-			// 日志输出，供调试。
-			t.Logf("成功克隆羊: 名称=%s, 年龄=%d, 类别=%s", clonedSheep.Name, clonedSheep.Age, clonedSheep.Category)
-		})
+	// 验证克隆结果
+	if clonedSheep == originalSheep {
+		t.Error("克隆的羊与原羊是同一对象，克隆失败")
+	}
+	sheep, ok := clonedSheep.(*Sheep)
+	if !ok {
+		t.Error("克隆对象类型错误")
+	}
+	if sheep.Name != originalSheep.Name || sheep.Age != originalSheep.Age || sheep.Color != originalSheep.Color {
+		t.Error("克隆的羊属性不一致")
 	}
 }
 
-// TestInvalidPrototype 测试克隆不存在的原型羊。
-func TestInvalidPrototype(t *testing.T) {
-	// 创建管理器，不添加任何原型。
-	manager := NewSheepManager()
+// TestPrototypeManager 测试原型管理器的功能
+func TestPrototypeManager(t *testing.T) {
+	// 创建原型管理器
+	manager := NewPrototypeManager()
 
-	// 尝试克隆不存在的羊。
-	_, err := manager.GetClone("NonExistent")
-	if err == nil {
-		t.Errorf("期望得到错误，但得到 nil")
+	// 创建并注册原型羊
+	dolly := &Sheep{
+		Name:  "Dolly",
+		Age:   2,
+		Color: "White",
 	}
-	expectedErr := "原型羊 NonExistent 不存在"
-	if err.Error() != expectedErr {
-		t.Errorf("期望错误信息为 '%s'，但得到 '%s'", expectedErr, err.Error())
+	manager.SetPrototype("Dolly", dolly)
+
+	// 客户端通过管理器获取克隆羊（客户端角色）
+	clonedPrototype := manager.GetPrototype("Dolly")
+	if clonedPrototype == nil {
+		t.Error("无法获取克隆羊")
+	}
+
+	// 验证克隆结果
+	clonedSheep, ok := clonedPrototype.(*Sheep)
+	if !ok {
+		t.Error("克隆对象类型错误")
+	}
+	if clonedSheep == dolly {
+		t.Error("克隆的羊与原羊是同一对象，克隆失败")
+	}
+	if clonedSheep.Name != dolly.Name || clonedSheep.Age != dolly.Age || clonedSheep.Color != dolly.Color {
+		t.Error("克隆的羊属性不一致")
 	}
 }

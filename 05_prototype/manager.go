@@ -1,32 +1,29 @@
 package prototype
 
-import "fmt"
-
 // 原型模式
-// 用于管理原型羊并提供克隆功能
 
-// SheepManager 管理原型羊并提供克隆功能。
-type SheepManager struct {
-	prototypes map[string]*Sheep
+// PrototypeManager 结构体（原型管理器角色）
+// 用于存储和管理原型对象，提供克隆功能
+type PrototypeManager struct {
+	prototypes map[string]Prototype
 }
 
-// NewSheepManager 创建一个新的羊管理器。
-func NewSheepManager() *SheepManager {
-	return &SheepManager{
-		prototypes: make(map[string]*Sheep),
+// NewPrototypeManager 创建一个新的原型管理器
+func NewPrototypeManager() *PrototypeManager {
+	return &PrototypeManager{
+		prototypes: make(map[string]Prototype),
 	}
 }
 
-// AddPrototype 添加一个原型羊到管理器。
-func (sm *SheepManager) AddPrototype(name string, sheep *Sheep) {
-	sm.prototypes[name] = sheep
+// SetPrototype 添加一个原型到管理器
+func (pm *PrototypeManager) SetPrototype(name string, prototype Prototype) {
+	pm.prototypes[name] = prototype
 }
 
-// GetClone 根据名称获取原型羊的克隆。
-func (sm *SheepManager) GetClone(name string) (Cloneable, error) {
-	prototype, exists := sm.prototypes[name]
-	if !exists {
-		return nil, fmt.Errorf("原型羊 %s 不存在", name)
+// GetPrototype 获取指定名称的原型的克隆副本
+func (pm *PrototypeManager) GetPrototype(name string) Prototype {
+	if prototype, exists := pm.prototypes[name]; exists {
+		return prototype.Clone()
 	}
-	return prototype.Clone(), nil
+	return nil
 }
