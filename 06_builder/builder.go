@@ -2,124 +2,142 @@ package builder
 
 // 建造者模式
 
-// 定义建造者 builder
-
-// CarBuilder 是构建汽车的接口
-type CarBuilder interface {
-	// SetMake 设置汽车的制造商
-	SetMake(string) CarBuilder
-	// SetModel 设置汽车的型号
-	SetModel(string) CarBuilder
-	// SetYear 设置汽车的年份
-	SetYear(int) CarBuilder
-	// SetColor 设置汽车的颜色
-	SetColor(string) CarBuilder
-	// SetEngine 设置汽车的引擎
-	SetEngine(Engine) CarBuilder
-	// SetSkeleton 设置汽车的车身骨架
-	SetSkeleton(Skeleton) CarBuilder
-	// AddWheel 添加车轮
-	AddWheel(Wheel) CarBuilder
-	// Build 返回构建好的汽车
-	Build() *Car
+// Builder 定义抽象建造者接口，声明构建汽车各部分的抽象方法
+type Builder interface {
+	BuildEngine() Builder
+	BuildFrame() Builder
+	BuildWheels() Builder
+	BuildSeats() Builder
+	GetCar() Car
 }
 
-// ConcreteCarBuilder 是具体的汽车构建器实现
-type ConcreteCarBuilder struct {
-	car *Car // 汽车结构体指针
+// SedanBuilder 具体建造者，用于构建轿车
+type SedanBuilder struct {
+	car Car
 }
 
-// NewConcreteCarBuilder 创建一个新的具体汽车构建器
-func NewConcreteCarBuilder() *ConcreteCarBuilder {
-	return &ConcreteCarBuilder{car: &Car{Wheels: []Wheel{}}}
+// NewSedanBuilder 创建一个新的轿车建造者实例
+func NewSedanBuilder() *SedanBuilder {
+	return &SedanBuilder{car: Car{}}
 }
 
-// SetMake 设置汽车的制造商
-func (b *ConcreteCarBuilder) SetMake(make string) CarBuilder {
-	b.car.Make = make
+// BuildEngine 构建轿车的引擎，设置为汽油引擎，马力150
+func (b *SedanBuilder) BuildEngine() Builder {
+	b.car.Engine = Engine{
+		Type:       "Gasoline",
+		Horsepower: 150,
+	}
 	return b
 }
 
-// SetModel 设置汽车的型号
-func (b *ConcreteCarBuilder) SetModel(model string) CarBuilder {
-	b.car.Model = model
+// BuildFrame 构建轿车的车骨架，材料为钢，重量1200千克
+func (b *SedanBuilder) BuildFrame() Builder {
+	b.car.Frame = CarFrame{
+		Material: "Steel",
+		Weight:   1200,
+	}
 	return b
 }
 
-// SetYear 设置汽车的年份
-func (b *ConcreteCarBuilder) SetYear(year int) CarBuilder {
-	b.car.Year = year
+// BuildWheels 构建轿车的四个车轮，尺寸16英寸，材料为铝合金
+func (b *SedanBuilder) BuildWheels() Builder {
+	b.car.Wheels = []Wheel{
+		{Size: 16, Material: "Aluminum"},
+		{Size: 16, Material: "Aluminum"},
+		{Size: 16, Material: "Aluminum"},
+		{Size: 16, Material: "Aluminum"},
+	}
 	return b
 }
 
-// SetColor 设置汽车的颜色
-func (b *ConcreteCarBuilder) SetColor(color string) CarBuilder {
-	b.car.Color = color
+// BuildSeats 构建轿车的座位，包括前排2个和后排3个，材料为皮革
+func (b *SedanBuilder) BuildSeats() Builder {
+	b.car.Seats = []CarSeat{
+		{Count: 2, Material: "Leather"},
+		{Count: 3, Material: "Leather"},
+	}
 	return b
 }
 
-// SetEngine 设置汽车的引擎
-func (b *ConcreteCarBuilder) SetEngine(engine Engine) CarBuilder {
-	b.car.Engine = engine
+// GetCar 返回最终构建的轿车对象
+func (b *SedanBuilder) GetCar() Car {
+	return b.car
+}
+
+// SUVBuilder 具体建造者，用于构建SUV
+type SUVBuilder struct {
+	car Car
+}
+
+// NewSUVBuilder 创建一个新的SUV建造者实例
+func NewSUVBuilder() *SUVBuilder {
+	return &SUVBuilder{car: Car{}}
+}
+
+// BuildEngine 构建SUV的引擎，设置为柴油引擎，马力200
+func (b *SUVBuilder) BuildEngine() Builder {
+	b.car.Engine = Engine{
+		Type:       "Diesel",
+		Horsepower: 200,
+	}
 	return b
 }
 
-// SetSkeleton 设置汽车的车身骨架
-func (b *ConcreteCarBuilder) SetSkeleton(skeleton Skeleton) CarBuilder {
-	b.car.Skeleton = skeleton
+// BuildFrame 构建SUV的车骨架，材料为铝合金，重量1800千克
+func (b *SUVBuilder) BuildFrame() Builder {
+	b.car.Frame = CarFrame{
+		Material: "Aluminum",
+		Weight:   1800,
+	}
 	return b
 }
 
-// AddWheel 添加车轮
-func (b *ConcreteCarBuilder) AddWheel(wheel Wheel) CarBuilder {
-	b.car.Wheels = append(b.car.Wheels, wheel)
+// BuildWheels 构建SUV的四个车轮，尺寸18英寸，材料为铝合金
+func (b *SUVBuilder) BuildWheels() Builder {
+	b.car.Wheels = []Wheel{
+		{Size: 18, Material: "Aluminum"},
+		{Size: 18, Material: "Aluminum"},
+		{Size: 18, Material: "Aluminum"},
+		{Size: 18, Material: "Aluminum"},
+	}
 	return b
 }
 
-// Build 返回构建好的汽车
-//func (b *ConcreteCarBuilder) Build() *Car {
-//	return b.car
-//}
-
-// Build 返回构建好的汽车
-func (b *ConcreteCarBuilder) Build() *Car {
-	car := *b.car // 复制 Car
-	car.Wheels = make([]Wheel, len(b.car.Wheels))
-	copy(car.Wheels, b.car.Wheels) // 复制 Wheels 切片
-	return &car
+// BuildSeats 构建SUV的座位，包括前排2个、后排3个、第三排2个，材料为织物
+func (b *SUVBuilder) BuildSeats() Builder {
+	b.car.Seats = []CarSeat{
+		{Count: 2, Material: "Fabric"},
+		{Count: 3, Material: "Fabric"},
+		{Count: 2, Material: "Fabric"},
+	}
+	return b
 }
 
-// Director 用于管理汽车的构建过程
+// GetCar 返回最终构建的SUV对象
+func (b *SUVBuilder) GetCar() Car {
+	return b.car
+}
+
+// Director 指挥者，负责协调建造过程
 type Director struct {
-	builder CarBuilder
+	builder Builder
 }
 
-// NewDirector 创建一个新的导向器
-func NewDirector(builder CarBuilder) *Director {
+// NewDirector 创建一个新的指挥者实例，绑定指定的建造者
+func NewDirector(builderType string) *Director {
+	var builder Builder
+	switch builderType {
+	case "sedan":
+		builder = NewSedanBuilder()
+	case "suv":
+		builder = NewSUVBuilder()
+	default:
+		builder = NewSedanBuilder() // 默认使用轿车建造者
+	}
 	return &Director{builder: builder}
 }
 
-// Construct 指导构建汽车的过程
-// 该方法接收汽车的各个组成部分作为参数，并返回构建好的汽车对象
-func (d *Director) Construct(make, model string, year int, color string, engine Engine, skeleton Skeleton, wheels []Wheel) *Car {
-	// 设置汽车的基本属性
-	d.builder.SetMake(make).
-		SetModel(model).
-		SetYear(year).
-		SetColor(color).
-		SetEngine(engine).
-		SetSkeleton(skeleton)
-
-	// 设置车轮
-	for _, wheel := range wheels {
-		d.builder.AddWheel(wheel)
-	}
-
-	// 返回构建好的汽车
-	return d.builder.Build()
-}
-
-// Reset 重置建造者
-func (b *ConcreteCarBuilder) Reset() {
-	b.car = &Car{Wheels: []Wheel{}}
+// Construct 按照固定顺序调用建造者的方法，构建完整的汽车
+func (d *Director) Construct() Car {
+	return d.builder.BuildEngine().BuildFrame().BuildWheels().BuildSeats().GetCar()
 }
