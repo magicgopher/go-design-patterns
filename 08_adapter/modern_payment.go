@@ -2,7 +2,7 @@ package adapter
 
 import "fmt"
 
-// 适配器模式 - 新版支付系统（JSON）被适配者
+// 适配器模式 - 新版支付系统（JSON）
 
 // ModernPaymentSystem 模拟新版支付系统，处理JSON数据
 type ModernPaymentSystem struct{}

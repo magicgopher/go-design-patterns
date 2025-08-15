@@ -4,5 +4,5 @@ package adapter
 
 // Payment 定义目标接口，客户端期望使用此接口
 type Payment interface {
-	ProcessPayment(xmlData string) (string, error)
+	ProcessPayment(jsonData string) (string, error)
 }
